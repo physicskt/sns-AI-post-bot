@@ -1,5 +1,6 @@
 from datetime import datetime
 from dotenv import load_dotenv
+import config
 # module 配下全て読み込み
 from module.module_loader import *
 
@@ -9,7 +10,7 @@ spreadsheet_url = os.getenv("SPREADSHEET_URL")
 spreadsheet = get_spreadsheet(spreadsheet_url)
 
 def main():
-    settings = get_sps_data2(spreadsheet, "設定")[0]
+    settings = get_sps_data2(spreadsheet, config.DEFAULT_SETTINGS_SHEET_NAME)[0]
     post_interval = settings["連続投稿間隔(s)"]
 
     # 未投稿を全て取得
@@ -27,7 +28,7 @@ def main():
         log_less_message(f"{row_index} 行目を処理中:")
         log_less_message(f"keyword: {row["keyword"]}")
         dateTime = row['date'] + " " + row['time']
-        scheduled_datetime = datetime.strptime(dateTime, "%Y/%m/%d %H:%M:%S")
+        scheduled_datetime = datetime.strptime(dateTime, config.DATETIME_FORMAT)
         now = datetime.now()
 
         log_less_message(f"現在時刻 {now}")
@@ -46,7 +47,7 @@ def main():
         if row['sns'] == "X":
             tweet_url = post_to_twitter(text)
             if tweet_url is not False:
-                update_post_status(row_index, text, "投稿完了", True, tweet_url)
+                update_post_status(row_index, text, config.POST_STATUS_COMPLETED, True, tweet_url)
                 msg = f"✅ 投稿完了（Twitter）:\n{text}"
             else:
                 msg = f"⚠️ Twitter投稿失敗:\n{text}"
@@ -59,7 +60,7 @@ def main():
 if __name__ == "__main__":
     while True:
         try:
-            settings = get_sps_data2(spreadsheet, "設定")[0]
+            settings = get_sps_data2(spreadsheet, config.DEFAULT_SETTINGS_SHEET_NAME)[0]
             script_interval = settings["スクリプト実行間隔(s)"]
 
             main()
@@ -69,4 +70,4 @@ if __name__ == "__main__":
         except Exception as e:
             log_less_message(repr(e))
             logging.error("エラーが起きました。30秒待機します。")
-            time.sleep(30)
+            time.sleep(config.ERROR_RETRY_INTERVAL)

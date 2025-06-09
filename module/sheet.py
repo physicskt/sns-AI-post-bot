@@ -1,9 +1,10 @@
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import os
+import config
 
 def get_spreadsheet(spreadsheet_url):
-    scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
+    scope = config.GOOGLE_SHEETS_SCOPE
     creds = ServiceAccountCredentials.from_json_keyfile_name(
         os.getenv("GOOGLE_SERVICE_ACCOUNT_JSON"), scope)
     client = gspread.authorize(creds)
@@ -13,7 +14,7 @@ def get_spreadsheet(spreadsheet_url):
     return spreadsheet
 
 
-def get_sheet(sheet_name="投稿管理"):
+def get_sheet(sheet_name=config.DEFAULT_POST_SHEET_NAME):
     spreadsheet = get_spreadsheet(os.getenv("SPREADSHEET_URL")) 
     sheet = spreadsheet.worksheet(sheet_name)
     return sheet
@@ -25,17 +26,17 @@ def fetch_pending_posts():
     pending_posts = []
 
     for i, row in enumerate(rows):
-        if row['status'] == "未投稿":
+        if row['status'] == config.POST_STATUS_PENDING:
             row_index = i + 2  # シートの行番号（1行目はヘッダーなので+2）
             pending_posts.append((row_index, row))
 
     return pending_posts
 
 
-def update_post_status(row_index, text, status, notified=True, tweet_url="urlの入力がありませんでした。"):
+def update_post_status(row_index, text, status, notified=True, tweet_url=config.DEFAULT_URL_MESSAGE):
     sheet = get_sheet()
     from datetime import datetime
-    now = datetime.now().strftime('%Y/%m/%d %H:%M')
+    now = datetime.now().strftime(config.DATETIME_FORMAT_SHORT)
 
     headers = sheet.row_values(1)  # 1行目のヘッダーを取得
 
@@ -45,6 +46,6 @@ def update_post_status(row_index, text, status, notified=True, tweet_url="urlの
     sheet.update_cell(row_index, col_index("text"), text)
     sheet.update_cell(row_index, col_index("postURL"), tweet_url)
     sheet.update_cell(row_index, col_index("status"), status)
-    sheet.update_cell(row_index, col_index("完了日時"), now if status=="投稿完了" else "")
+    sheet.update_cell(row_index, col_index("完了日時"), now if status==config.POST_STATUS_COMPLETED else "")
     sheet.update_cell(row_index, col_index("通知済み"), "Yes" if notified else "No")
 

@@ -2,19 +2,18 @@ import gspread
 from datetime import datetime
 import pytz
 from oauth2client.service_account import ServiceAccountCredentials
+import config
 
 
-def log_record_spreadsheet(argument, SPREADSHEET_URL, GCP_JSON_KEY, max_rows_count=2000):
+def log_record_spreadsheet(argument, SPREADSHEET_URL, GCP_JSON_KEY, max_rows_count=config.LOG_SHEET_MAX_ROWS):
     """
     引数を、'実行記録' シートのA列に記録する
     - シートがなければ作成
     - 最大 max_rows_count まで記録し、超えた場合は先頭100行を削除
     """
-    recordSheetName = "実行記録"
+    recordSheetName = config.DEFAULT_LOG_SHEET_NAME
     # Google Sheets API のスコープ設定
-    scope = ["https://spreadsheets.google.com/feeds", 
-             "https://www.googleapis.com/auth/spreadsheets", 
-             "https://www.googleapis.com/auth/drive"]
+    scope = config.GOOGLE_SHEETS_SCOPE
     
     # 認証情報の読み込み
     creds = ServiceAccountCredentials.from_json_keyfile_name(GCP_JSON_KEY, scope)
@@ -38,30 +37,28 @@ def log_record_spreadsheet(argument, SPREADSHEET_URL, GCP_JSON_KEY, max_rows_cou
 
     # 現在のデータを取得
     data = sheet.col_values(1)  # A列の全データを取得
-    jst = pytz.timezone('Asia/Tokyo')
-    execution_time = datetime.now(jst).strftime("%Y-%m-%d %H:%M:%S")
+    jst = pytz.timezone(config.TIMEZONE)
+    execution_time = datetime.now(jst).strftime(config.LOG_DATETIME_FORMAT)
 
     # データを追加
     sheet.append_row([execution_time, argument])
     
     # max_rows_count 行を超えていたら先頭100行を削除
     if len(data) >= max_rows_count:
-        sheet.delete_rows(1, 100)  # 1〜100行目を削除
+        sheet.delete_rows(1, config.LOG_SHEET_DELETE_ROWS_COUNT)  # 1〜100行目を削除
 
     # print(f"{argument}")
 
 
-def log_record_spreadsheet_head(argument, SPREADSHEET_URL, GCP_JSON_KEY, max_rows_count=2000):
+def log_record_spreadsheet_head(argument, SPREADSHEET_URL, GCP_JSON_KEY, max_rows_count=config.LOG_SHEET_MAX_ROWS):
     """
     引数を、'実行記録' シートのA列に記録する
     - シートがなければ作成
     - 最大 max_rows_count まで記録し、超えた場合は先頭100行を削除
     """
-    recordSheetName = "実行記録"
+    recordSheetName = config.DEFAULT_LOG_SHEET_NAME
     # Google Sheets API のスコープ設定
-    scope = ["https://spreadsheets.google.com/feeds", 
-             "https://www.googleapis.com/auth/spreadsheets", 
-             "https://www.googleapis.com/auth/drive"]
+    scope = config.GOOGLE_SHEETS_SCOPE
     
     # 認証情報の読み込み
     creds = ServiceAccountCredentials.from_json_keyfile_name(GCP_JSON_KEY, scope)
@@ -85,8 +82,8 @@ def log_record_spreadsheet_head(argument, SPREADSHEET_URL, GCP_JSON_KEY, max_row
 
     # 現在のデータを取得
     data = sheet.col_values(1)  # A列の全データを取得
-    jst = pytz.timezone('Asia/Tokyo')
-    execution_time = datetime.now(jst).strftime("%Y-%m-%d %H:%M:%S")
+    jst = pytz.timezone(config.TIMEZONE)
+    execution_time = datetime.now(jst).strftime(config.LOG_DATETIME_FORMAT)
 
     # データを追加
     sheet.insert_row([execution_time, argument], 1)
@@ -95,6 +92,6 @@ def log_record_spreadsheet_head(argument, SPREADSHEET_URL, GCP_JSON_KEY, max_row
     
     # max_rows_count 行を超えていたら 後ろ100行を削除
     if row_count > max_rows_count:
-        sheet.delete_rows(max_rows_count -100, row_count)  # max_rows_count+1行目以降を削除
+        sheet.delete_rows(max_rows_count - config.LOG_SHEET_DELETE_ROWS_COUNT, row_count)  # max_rows_count+1行目以降を削除
 
     # print(f"{argument}")

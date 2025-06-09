@@ -1,5 +1,6 @@
 from oauth2client.service_account import ServiceAccountCredentials
 import gspread
+import config
 
 
 def get_sps_data(GCP_JSON_KEY, SPREADSHEET_URL, sheet_name) :
@@ -7,7 +8,7 @@ def get_sps_data(GCP_JSON_KEY, SPREADSHEET_URL, sheet_name) :
     スプレッドシートのデータをリストで返す
     """
     # Google Sheets API のスコープ設定
-    scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
+    scope = config.GOOGLE_SHEETS_SCOPE
     # 認証情報の読み込み
     creds = ServiceAccountCredentials.from_json_keyfile_name(GCP_JSON_KEY, scope)
     client = gspread.authorize(creds)

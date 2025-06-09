@@ -1,18 +1,19 @@
 import openai
 import os
 from dotenv import load_dotenv
+import config
 # .envファイルを強制的に読み込む
 load_dotenv()
 
 client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def generate_post_text(keyword):
-    prompt = f"以下のキーワードに基づいてSNS投稿文を生成してください（140字以内）: {keyword}"
+    prompt = config.GPT_PROMPT_TEMPLATE.format(char_limit=config.SNS_CHARACTER_LIMIT, keyword=keyword)
     
     response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
+        model=config.OPENAI_MODEL,
         messages=[{"role": "user", "content": prompt}],
-        max_tokens=4096
+        max_tokens=config.OPENAI_MAX_TOKENS
     )
     
     return response.choices[0].message.content.strip()
