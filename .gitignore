@@ -1,0 +1,9 @@
+_log_output.log
+.venv
+__pycache__
+_propertyURL.txt
+_repeat_time.txt
+_google_app_pass.txt
+_gcp_key.json
+credentials.json
+.env

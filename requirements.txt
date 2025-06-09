@@ -1,0 +1,7 @@
+gspread
+oauth2client
+openai
+requests
+python-dotenv
+tweepy
+pytz
