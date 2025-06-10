@@ -1,6 +1,7 @@
 import os
 import tweepy
 from dotenv import load_dotenv
+import config
 
 load_dotenv()  # .envを読み込む
 
@@ -27,7 +28,7 @@ def post_to_twitter(text):
         response = client.create_tweet(text=text)
         tweet_id = response.data["id"]
         username = client.get_me().data.username
-        tweet_url = f"https://twitter.com/{username}/status/{tweet_id}"
+        tweet_url = config.TWITTER_URL_FORMAT.format(username=username, tweet_id=tweet_id)
         print("Twitter投稿成功")
         print(f"投稿URL: {tweet_url}")
         return tweet_url

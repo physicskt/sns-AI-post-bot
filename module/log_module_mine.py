@@ -1,10 +1,11 @@
 import logging
+import config
 
 # ログ設定（ファイルとコンソールの両方に出力）
-log_file = "_log_output.log"
+log_file = config.LOG_FILE_NAME
 logging.basicConfig(
-    level=logging.INFO, 
-    format="[%(asctime)s] - %(levelname)s - %(message)s",
+    level=getattr(logging, config.LOG_LEVEL), 
+    format=config.LOG_FORMAT,
     handlers=[
         logging.FileHandler(log_file, mode="a", encoding="utf-8"),
         logging.StreamHandler()
