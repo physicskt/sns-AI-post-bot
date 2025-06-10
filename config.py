@@ -41,7 +41,7 @@ GMAIL_SMTP_SERVER = "smtp.gmail.com"
 GMAIL_SMTP_PORT = 465
 
 # メール件名
-MAIL_SUBJECT = "賃貸自動申し込みプログラム"
+MAIL_SUBJECT = "sns-AI-post-bot 実行結果"
 
 # ============================================
 # ログ関連の設定
