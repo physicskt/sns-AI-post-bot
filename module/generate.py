@@ -7,8 +7,20 @@ load_dotenv()
 
 client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-def generate_post_text(keyword):
-    prompt = config.GPT_PROMPT_TEMPLATE.format(char_limit=config.SNS_CHARACTER_LIMIT, keyword=keyword)
+def generate_post_text(keyword, sns=None):
+    # promptへの指示を取得
+    from .sheet import get_prompt_instructions
+    instructions = get_prompt_instructions()
+    
+    # 基本のプロンプトテンプレート
+    base_prompt = config.GPT_PROMPT_TEMPLATE.format(char_limit=config.SNS_CHARACTER_LIMIT, keyword=keyword)
+    
+    # SNS固有の指示がある場合は追加
+    if sns and sns in instructions:
+        instruction = instructions[sns]
+        prompt = f"{base_prompt}。{instruction}。"
+    else:
+        prompt = base_prompt
     
     response = client.chat.completions.create(
         model=config.OPENAI_MODEL,
