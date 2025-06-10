@@ -1,3 +1,4 @@
+chcp 65001 >nul
 @echo off
 echo =====================================
 echo    SNS AI Post Bot アップデート
