@@ -49,3 +49,22 @@ def update_post_status(row_index, text, status, notified=True, tweet_url=config.
     sheet.update_cell(row_index, col_index("完了日時"), now if status==config.POST_STATUS_COMPLETED else "")
     sheet.update_cell(row_index, col_index("通知済み"), "Yes" if notified else "No")
 
+
+def get_prompt_instructions():
+    """
+    promptへの指示シートからSNS別の指示を取得する
+    返り値: SNSをキー、指示を値とする辞書
+    """
+    try:
+        sheet = get_sheet(config.DEFAULT_PROMPT_INSTRUCTIONS_SHEET_NAME)
+        rows = sheet.get_all_records()
+        instructions = {}
+        for row in rows:
+            sns = row.get('SNS', '').strip()
+            instruction = row.get('指示', '').strip()
+            if sns and instruction:
+                instructions[sns] = instruction
+        return instructions
+    except Exception as e:
+        # シートが存在しない場合や読み取りエラーの場合は空の辞書を返す
+        return {}

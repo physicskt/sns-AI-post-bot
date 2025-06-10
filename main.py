@@ -38,7 +38,7 @@ def main():
             continue
 
         # 投稿文の生成
-        text = row['text'] if row['text'] else generate_post_text(row['keyword'])
+        text = row['text'] if row['text'] else generate_post_text(row['keyword'], row['sns'])
         
         log_less_message(text)
         log_less_message("投稿作業を試みます")
